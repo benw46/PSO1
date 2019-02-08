@@ -1,0 +1,107 @@
+/*
+Simple One Dimensional Particle Swarm Optimization
+Benjamin Watts
+08/02/19
+*/
+
+#include <iostream>
+using namespace std;
+
+const int POP = 10; //Population
+const int ITER = 100; //Iterations
+const double pi = 3.14159265359;
+
+double doubleRand(int x);
+
+class particle
+{
+public:
+	double pbest;
+	double position[ITER];
+	double velocity[ITER];
+
+	void init()
+	{
+		this->position[0] = doubleRand(10); // Random pos between 10 and -10
+		this->velocity[0] = doubleRand(1); // Random velo between 1 and -1
+		this->pbest = position[0];
+	}
+};
+
+int globalBest(particle swarm[POP]);
+
+int main()
+{
+	particle swarm[POP];
+	double gbest;
+	int epoch;
+
+	for (int i = 0; i < POP; i++)
+	{
+		swarm[i].init();
+	}
+
+	gbest = doubleRand(10); //Didnt know how to do this otherwise
+
+	for (epoch = 1; epoch < ITER; epoch++)
+	{
+		for (int i = 0; i < POP; i++)
+		{
+			swarm[i].velocity[epoch] = (doubleRand(1) * (swarm[i].pbest - swarm[i].position[epoch - 1]))
+				+ (doubleRand(1) *(gbest - swarm[i].position[epoch - 1])); //This part is concerning as the doubleRand(1) may give a +ve or -ve number...
+				//... meaning that the direction of the velocity may be the opposite, yet it still works. 
+			swarm[i].position[epoch] = swarm[i].position[epoch - 1] + swarm[i].velocity[epoch];
+			cout << "Swarm member " << i << " moves from pos " << swarm[i].position[epoch - 1] << 
+				" to " << swarm[i].position[epoch] << ", pbest Position = " << swarm[i].pbest << endl;;
+		}
+		cout << "Swarms gbest = " << gbest << endl;
+		cout << "" << endl;
+		for (int i = 0; i < POP; i++)
+		{
+			if (abs(swarm[i].position[epoch] - pi) < (abs(swarm[i].pbest - pi)))
+			{
+				swarm[i].pbest = swarm[i].position[epoch];
+				if ((abs(swarm[i].pbest - pi)) < gbest)
+				{
+					gbest = swarm[i].pbest;
+				}
+			}
+		}
+	}
+	system("pause");
+	return 0;
+}
+
+double doubleRand(int x) {
+	//RAND_MAX == 32767
+	double temp;
+	if (x == 10)
+	{
+		temp = double(rand()) / (double(1638)) - 10; //Between -10 and 10
+	}
+	if (x == 1)
+	{
+		temp = double(rand()) / (double(16383)) - 1; //Between -1 and 1
+	}
+	if (x == 0)
+	{
+		temp = double(rand()) / (double(32767)); //Between 0 and 1 //Not used
+	}
+	return temp;
+}
+
+int globalBest(particle swarm[POP])
+{
+	double temp;
+	int index = 0;
+	temp = abs(swarm[0].pbest);
+	for (int i = 1; i < POP; i++)
+	{
+		if (abs((swarm[i].pbest - pi)) < temp)
+		{
+			temp = swarm[i].pbest;
+			index = i;
+		}
+	}
+	return index;
+}
